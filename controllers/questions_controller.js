@@ -120,14 +120,14 @@ module.exports.delete = async function (req, res) {
     }
 
     // dont remove the question if even 1 option is voted
-    question.options.forEach((option) => {
-      if (option.votes > 0) {
+    for (let i = 0; i < question.options.length; i++) {
+      if (question.options[i].votes > 0) {
         return res.status(403).json({
           success: false,
           message: "Cannot remove an question with a voted option",
         });
       }
-    });
+    }
 
     //first deleting the associated options from the Option schema
     await Option.deleteMany({ question: question._id });
