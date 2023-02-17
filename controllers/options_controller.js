@@ -95,6 +95,14 @@ module.exports.delete = async function (req, res) {
       });
     }
 
+    // don't remove the option if it's already voted
+    if (option.votes > 0) {
+      return res.status(403).json({
+        success: false,
+        message: "Cannot remove an option which has been voted already",
+      });
+    }
+
     //finding the parent question of the option
     let question = await Question.findById(option.question);
 

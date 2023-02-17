@@ -109,7 +109,7 @@ module.exports.find = async function (req, res) {
 module.exports.delete = async function (req, res) {
   try {
     //finding the question to delete
-    let question = await Question.findById(req.params.id);
+    let question = await Question.findById(req.params.id).populate("options");
 
     // if question not found
     if (!question) {
@@ -118,6 +118,16 @@ module.exports.delete = async function (req, res) {
         message: "Bad Request",
       });
     }
+
+    // dont remove the question if even 1 option is voted
+    question.options.forEach((option) => {
+      if (option.votes > 0) {
+        return res.status(403).json({
+          success: false,
+          message: "Cannot remove an question with a voted option",
+        });
+      }
+    });
 
     //first deleting the associated options from the Option schema
     await Option.deleteMany({ question: question._id });
